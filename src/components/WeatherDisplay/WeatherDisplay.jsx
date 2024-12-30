@@ -1,22 +1,24 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import "./WeatherDisplay.css";
-import { useState } from "react";
-import { use } from "react";
 import search_icon from "../../assets/search_icon.png";
 
 function WeatherDisplay() {
-  const API_KEY = "b19b67a3f6443905bb4a2f8f24121e14";
+  // const API_KEY = process.env.REACT_APP_OPENWEATHER_API_KEY;
+  const API_KEY = import.meta.env.VITE_API_KEY;
 
   const [weatherData, setWeatherData] = useState(null);
-  const [location, setLocation] = useState(""); // State to track user input
+  const [location, setLocation] = useState(""); // Input field value
+  const [currentLocation, setCurrentLocation] = useState(null); // Coordinates
+  const [isManualSearch, setIsManualSearch] = useState(false); // Track manual search
 
-  const search = async (location) => {
-    if (!location) {
-      alert("Please enter a location!");
-      return;
-    }
+  // Fetch weather data based on city name or coordinates
+  const fetchWeatherData = async (query) => {
     try {
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=imperial&appid=${API_KEY}`;
+      const url =
+        typeof query === "string"
+          ? `https://api.openweathermap.org/data/2.5/weather?q=${query}&units=imperial&appid=${API_KEY}`
+          : `https://api.openweathermap.org/data/2.5/weather?lat=${query.lat}&lon=${query.lon}&units=imperial&appid=${API_KEY}`;
+
       const response = await fetch(url);
       const data = await response.json();
 
@@ -29,18 +31,62 @@ function WeatherDisplay() {
           windSpeed: Math.floor(data.wind.speed),
           location: data.name,
           icon: data.weather[0].icon,
+          timezone: data.timezone, // Save timezone offset
         });
       } else {
-        alert(data.message || "Error fetching weather data.");
+        setWeatherData(null);
+        alert(data.message || "City not found. Please try again.");
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      alert("Network error. Please try again.");
     }
   };
 
+  // Get user's current location or use a default city
   useEffect(() => {
-    search("Kathmandu"); // Default search on component mount
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setCurrentLocation({ lat: latitude, lon: longitude });
+      },
+      (error) => {
+        console.warn("Geolocation error:", error.message);
+        setIsManualSearch(true); // Enable manual search
+        fetchWeatherData("Kathmandu"); // Fallback to default city
+      }
+    );
   }, []);
+
+  // Fetch weather for current location (geolocation) if not manually searched
+  useEffect(() => {
+    if (currentLocation && !isManualSearch) {
+      fetchWeatherData(currentLocation);
+    }
+  }, [currentLocation, isManualSearch]);
+
+  // Handle search button click
+  const handleSearch = () => {
+    if (location.trim()) {
+      setIsManualSearch(true); // Indicate manual search
+      fetchWeatherData(location.trim()); // Fetch weather for user input
+      setLocation(""); // Clear input field
+    } else {
+      alert("Please enter a valid city name.");
+    }
+  };
+
+  // Calculate and format local time based on timezone offset
+  const getLocalTime = (timezoneOffset) => {
+    const utcTime =
+      new Date().getTime() + new Date().getTimezoneOffset() * 60000;
+    const localTime = new Date(utcTime + timezoneOffset * 1000);
+    return localTime.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+  };
 
   return (
     <div className="app">
@@ -48,13 +94,15 @@ function WeatherDisplay() {
         <input
           type="text"
           placeholder="Enter location"
+          aria-label="Location input"
           value={location}
-          onChange={(e) => setLocation(e.target.value)} // Update state with user input
+          onChange={(e) => setLocation(e.target.value)} // Update input field
         />
         <img
           src={search_icon}
           alt="Search icon"
-          onClick={() => search(location)} // Use input value for search
+          aria-label="Search"
+          onClick={handleSearch} // Trigger search
         />
       </div>
 
@@ -79,13 +127,11 @@ function WeatherDisplay() {
             </div>
             <div className="time">
               <h1>
-                {new Date().toLocaleTimeString("en-US", {
-                  hour: "numeric",
-                  minute: "numeric",
-                })}
+                {weatherData.timezone
+                  ? getLocalTime(weatherData.timezone) // Show local time
+                  : "Loading time..."}
               </h1>
             </div>
-
             <div className="bottom">
               <div className="feels-like">
                 <p className="bold">Feels like</p>
@@ -102,7 +148,7 @@ function WeatherDisplay() {
             </div>
           </>
         ) : (
-          <p>Loading weather data...</p>
+          <p className="loading">Loading weather data...</p>
         )}
       </div>
     </div>

@@ -8,3 +8,5 @@ createRoot(document.getElementById("root")).render(
     <WeatherDisplay />
   </StrictMode>
 );
+
+//const API_KEY = "b19b67a3f6443905bb4a2f8f24121e14";
