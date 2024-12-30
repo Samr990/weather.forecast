@@ -3,7 +3,6 @@ import "./WeatherDisplay.css";
 import search_icon from "../../assets/search_icon.png";
 
 function WeatherDisplay() {
-  // const API_KEY = process.env.REACT_APP_OPENWEATHER_API_KEY;
   const API_KEY = import.meta.env.VITE_API_KEY;
 
   const [weatherData, setWeatherData] = useState(null);
