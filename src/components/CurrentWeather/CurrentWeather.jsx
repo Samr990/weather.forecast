@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
-import "./WeatherDisplay.css";
+import "./CurrentWeather.css";
 import search_icon from "../../assets/search_icon.png";
+
+import clear_icon from "../../assets/clear.svg";
+import clouds_icon from "../../assets/clouds.svg";
+import rain_icon from "../../assets/rain.svg";
+import snow_icon from "../../assets/snow.svg";
+import thunderstorm_icon from "../../assets/thunder_rain.svg";
+import mist_icon from "../../assets/mist.svg";
+import moderate_heavy_rain_icon from "../../assets/moderate_heavy_rain.svg";
+import WeatherDetails from "../WeatherDetails/WeatherDetails";
 
 function WeatherDisplay() {
   const API_KEY = import.meta.env.VITE_API_KEY;
@@ -9,6 +18,27 @@ function WeatherDisplay() {
   const [location, setLocation] = useState(""); // Input field value
   const [currentLocation, setCurrentLocation] = useState(null); // Coordinates
   const [isManualSearch, setIsManualSearch] = useState(false); // Track manual search
+
+  const allIcons = {
+    "01d": clear_icon,
+    "02d": clouds_icon,
+    "03d": clouds_icon,
+    "04d": clouds_icon,
+    "09d": moderate_heavy_rain_icon,
+    "10d": rain_icon,
+    "11d": thunderstorm_icon,
+    "13d": snow_icon,
+    "50d": mist_icon,
+    "01n": clear_icon,
+    "02n": clouds_icon,
+    "03n": clouds_icon,
+    "04n": clouds_icon,
+    "09n": moderate_heavy_rain_icon,
+    "10n": rain_icon,
+    "11n": thunderstorm_icon,
+    "13n": snow_icon,
+    "50n": mist_icon,
+  };
 
   // Fetch weather data based on city name or coordinates
   const fetchWeatherData = async (query) => {
@@ -21,6 +51,8 @@ function WeatherDisplay() {
       const response = await fetch(url);
       const data = await response.json();
 
+      const icon = allIcons[data.weather[0].icon] || clear_icon;
+
       if (data.cod === 200) {
         setWeatherData({
           temperature: Math.floor(data.main.temp),
@@ -29,8 +61,11 @@ function WeatherDisplay() {
           humidity: data.main.humidity,
           windSpeed: Math.floor(data.wind.speed),
           location: data.name,
-          icon: data.weather[0].icon,
-          timezone: data.timezone, // Save timezone offset
+          icon: icon,
+          timezone: data.timezone,
+          highTemp: Math.floor(data.main.temp_max),
+          lowTemp: Math.floor(data.main.temp_min),
+          pressure: data.main.pressure,
         });
       } else {
         setWeatherData(null);
@@ -108,42 +143,34 @@ function WeatherDisplay() {
       <div className="container">
         {weatherData ? (
           <>
-            <div className="top">
-              <div className="location">
-                <p>{weatherData.location}</p>
+            <div className="side-by-side">
+              <div className="top">
+                <div className="location">
+                  <p>{weatherData.location}</p>
+                </div>
+                <div className="temp">
+                  <h1>{weatherData.temperature}°F</h1>
+                </div>
+                <div className="desc">
+                  <p className="bold">{weatherData.desc}</p>
+                  <img
+                    className="icon"
+                    src={weatherData.icon}
+                    alt="Weather Icon"
+                  />
+                </div>
               </div>
-              <div className="temp">
-                <h1>{weatherData.temperature}°F</h1>
-              </div>
-              <div className="desc">
-                <p className="bold">{weatherData.desc}</p>
-                <img
-                  className="icon"
-                  src={`http://openweathermap.org/img/wn/${weatherData.icon}.png`}
-                  alt="Weather Icon"
-                />
+              <div className="top-right">
+                <WeatherDetails weatherData={weatherData} />
               </div>
             </div>
+
             <div className="time">
               <h1>
                 {weatherData.timezone
                   ? getLocalTime(weatherData.timezone) // Show local time
                   : "Loading time..."}
               </h1>
-            </div>
-            <div className="bottom">
-              <div className="feels-like">
-                <p className="bold">Feels like</p>
-                <p>{weatherData.feels_like}°F</p>
-              </div>
-              <div className="humidity">
-                <p className="bold">Humidity</p>
-                <p>{weatherData.humidity}%</p>
-              </div>
-              <div className="wind">
-                <p className="bold">Wind</p>
-                <p>{weatherData.windSpeed} mph</p>
-              </div>
             </div>
           </>
         ) : (
