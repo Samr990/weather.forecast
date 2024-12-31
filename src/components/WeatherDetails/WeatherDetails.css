@@ -3,9 +3,29 @@
   flex-direction: column;
   margin: 1rem auto;
   border-radius: 15px;
+  gap: 1rem;
+  margin-left: 3rem;
   /* background: rgba(0, 0, 0, 0.3); */
 }
 
 p {
-  font-size: 2rem;
+  font-size: 2rem; /* Default font size for larger screens */
+}
+
+/* Media Query for smaller screens */
+@media (max-width: 768px) {
+  .weather-details {
+    margin-left: 1rem; /* Adjust margin on smaller screens */
+  }
+
+  p {
+    font-size: 1.5rem; /* Reduce font size on smaller screens */
+  }
+}
+
+/* Media Query for extra small screens (e.g., mobile devices) */
+@media (max-width: 480px) {
+  p {
+    font-size: 1.2rem; /* Further reduce font size on very small screens */
+  }
 }

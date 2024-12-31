@@ -1,14 +1,16 @@
+/* General Styles */
 p {
-  font-size: 1.6rem;
+  font-size: 1.6rem; /* Default font size for paragraphs */
 }
+
 h1 {
-  font-size: 6rem;
+  font-size: 6rem; /* Default font size for headings */
 }
+
 .app {
   width: 100%;
   height: 100vh;
   position: relative;
-  /* background-color: #838383; */
   color: white;
   min-height: 100vh;
 }
@@ -16,7 +18,6 @@ h1 {
 .app:before {
   content: "";
   background: url("../../assets/sunset.jpg") no-repeat center center/cover;
-  /* background: red; */
   position: absolute;
   width: 100%;
   height: 100%;
@@ -25,7 +26,7 @@ h1 {
   z-index: -1;
 }
 
-/* css for search */
+/* Search Container */
 .app .search {
   text-align: center;
   padding: 1rem;
@@ -43,15 +44,14 @@ h1 {
   background: rgba(255, 255, 255, 0.1);
   color: white;
   outline: none;
-  /* Allow input to resize flexibly */
-  max-width: 400px; /* Limit the input width */
+  max-width: 400px;
 }
 
 .search img {
-  width: 40px; /* Adjust size of the icon */
+  width: 40px;
   height: 40px;
   cursor: pointer;
-  border-radius: 50%; /* Makes the image circular */
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid white;
 }
@@ -66,6 +66,7 @@ h1 {
   color: white;
 }
 
+/* Container */
 .container {
   display: flex;
   flex-direction: column;
@@ -75,6 +76,7 @@ h1 {
   position: relative;
 }
 
+/* Description Section */
 .desc {
   display: flex;
   gap: 0.5rem;
@@ -90,12 +92,12 @@ h1 {
   font-size: 3rem;
 }
 
+/* Top Section */
 .app .top {
   width: 100%;
   margin: 1rem auto;
 }
 
-/* top right half */
 .side-by-side {
   display: flex;
 }
@@ -105,26 +107,105 @@ h1 {
   height: 100%;
 }
 
-/* bold text */
+/* Bold text */
 .bold {
   font-weight: 700;
 }
 
-/* css for time container */
+/* Time Container */
 .app .time {
   display: block;
   text-align: center;
   margin: 1rem;
+  margin-bottom: 10rem;
 }
 
-/* css for temp container */
+/* Temp Container */
 .app .temp {
   display: flex;
 }
 
-/* .temp img {
-  margin-left: 8.5rem;
-  margin-top: 1.6rem;
-  width: 100px;
-  height: 120px;
-} */
+/* Media Queries for Responsiveness */
+@media (max-width: 1024px) {
+  /* Adjust text size for tablets */
+  p {
+    font-size: 1.4rem; /* Slightly smaller text */
+  }
+
+  h1 {
+    font-size: 5rem; /* Adjust header size */
+  }
+
+  /* Adjust layout for smaller screens */
+  .top-right {
+    width: 70%; /* Make space for other elements on smaller screens */
+  }
+
+  .search input {
+    max-width: 300px; /* Reduce input size on tablets */
+  }
+}
+
+@media (max-width: 768px) {
+  /* Adjust text size for tablets */
+  p {
+    font-size: 1.3rem; /* Reduce font size on smaller devices */
+  }
+
+  h1 {
+    font-size: 4rem; /* Reduce h1 font size */
+  }
+
+  /* Adjust container layout for smaller screens */
+  .app .search {
+    flex-direction: column; /* Stack search input and button on top of each other */
+    gap: 1rem;
+  }
+
+  .container {
+    padding: 0.5rem; /* Reduce padding for smaller screens */
+  }
+
+  .top-right {
+    width: 100%; /* Take full width on small screens */
+  }
+
+  .desc p {
+    font-size: 2rem; /* Adjust description font size */
+  }
+
+  .search input {
+    max-width: 250px; /* Further reduce input size */
+  }
+
+  .weather-details {
+    width: 100%; /* Ensure weather details container is fully responsive */
+  }
+}
+
+@media (max-width: 480px) {
+  /* Adjust text size for mobile devices */
+  p {
+    font-size: 1.2rem; /* Further reduce font size */
+  }
+
+  h1 {
+    font-size: 3rem; /* Adjust h1 size for small screens */
+  }
+
+  .app .search {
+    padding: 0.5rem; /* Reduce padding for mobile */
+  }
+
+  .desc p {
+    font-size: 1.5rem; /* Reduce description font size on small screens */
+  }
+
+  .top-right {
+    width: 100%; /* Make top-right take full width */
+  }
+
+  .search input {
+    width: 80%; /* Make input more responsive */
+  }
+}
