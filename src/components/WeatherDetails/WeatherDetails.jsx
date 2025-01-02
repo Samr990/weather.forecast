@@ -1,14 +1,26 @@
 import React from "react";
 import "./WeatherDetails.css";
 
-function WeatherDetails({ weatherData }) {
+function WeatherDetails({ weatherData, isCelsius }) {
+  // Convert Fahrenheit to Celsius if toggle is set
+  const convertTemperature = (temp) => {
+    return isCelsius ? Math.floor((temp - 32) * (5 / 9)) : temp;
+  };
+
   const details = [
-    { label: "Feels Like", value: `${weatherData.feels_like}°F` },
+    {
+      label: "Feels Like",
+      value: `${convertTemperature(weatherData.feels_like)}°${
+        isCelsius ? "C" : "F"
+      }`,
+    },
     { label: "Humidity", value: `${weatherData.humidity}%` },
     { label: "Wind", value: `${weatherData.windSpeed} mph` },
     {
       label: "High / Low",
-      value: `${weatherData.highTemp}°F / ${weatherData.lowTemp}°F`,
+      value: `${convertTemperature(weatherData.highTemp)}°${
+        isCelsius ? "C" : "F"
+      } / ${convertTemperature(weatherData.lowTemp)}°${isCelsius ? "C" : "F"}`,
     },
     { label: "Pressure", value: `${weatherData.pressure} hPa` },
   ];
@@ -18,7 +30,7 @@ function WeatherDetails({ weatherData }) {
       {details.map((detail, index) => (
         <div className="weather-detail" key={index}>
           <div className="detail-info">
-            <p>
+            <p className>
               {detail.label}: {detail.value}
             </p>
           </div>

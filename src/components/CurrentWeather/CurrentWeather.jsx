@@ -15,9 +15,10 @@ function WeatherDisplay() {
   const API_KEY = import.meta.env.VITE_API_KEY;
 
   const [weatherData, setWeatherData] = useState(null);
-  const [location, setLocation] = useState(""); // Input field value
-  const [currentLocation, setCurrentLocation] = useState(null); // Coordinates
-  const [isManualSearch, setIsManualSearch] = useState(false); // Track manual search
+  const [location, setLocation] = useState("");
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [isManualSearch, setIsManualSearch] = useState(false);
+  const [isCelsius, setIsCelsius] = useState(false); // Toggle for temperature unit
 
   const allIcons = {
     "01d": clear_icon,
@@ -40,7 +41,6 @@ function WeatherDisplay() {
     "50n": mist_icon,
   };
 
-  // Fetch weather data based on city name or coordinates
   const fetchWeatherData = async (query) => {
     try {
       const url =
@@ -77,7 +77,6 @@ function WeatherDisplay() {
     }
   };
 
-  // Get user's current location or use a default city
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -86,31 +85,28 @@ function WeatherDisplay() {
       },
       (error) => {
         console.warn("Geolocation error:", error.message);
-        setIsManualSearch(true); // Enable manual search
-        fetchWeatherData("Kathmandu"); // Fallback to default city
+        setIsManualSearch(true);
+        fetchWeatherData("Kathmandu");
       }
     );
   }, []);
 
-  // Fetch weather for current location (geolocation) if not manually searched
   useEffect(() => {
     if (currentLocation && !isManualSearch) {
       fetchWeatherData(currentLocation);
     }
   }, [currentLocation, isManualSearch]);
 
-  // Handle search button click
   const handleSearch = () => {
     if (location.trim()) {
-      setIsManualSearch(true); // Indicate manual search
-      fetchWeatherData(location.trim()); // Fetch weather for user input
-      setLocation(""); // Clear input field
+      setIsManualSearch(true);
+      fetchWeatherData(location.trim());
+      setLocation("");
     } else {
       alert("Please enter a valid city name.");
     }
   };
 
-  // Calculate and format local time based on timezone offset
   const getLocalTime = (timezoneOffset) => {
     const utcTime =
       new Date().getTime() + new Date().getTimezoneOffset() * 60000;
@@ -122,6 +118,10 @@ function WeatherDisplay() {
     });
   };
 
+  const convertTemperature = (temp) => {
+    return isCelsius ? Math.floor((temp - 32) * (5 / 9)) : temp;
+  };
+
   return (
     <div className="app">
       <div className="search">
@@ -130,14 +130,21 @@ function WeatherDisplay() {
           placeholder="Enter location"
           aria-label="Location input"
           value={location}
-          onChange={(e) => setLocation(e.target.value)} // Update input field
+          onChange={(e) => setLocation(e.target.value)}
         />
         <img
           src={search_icon}
           alt="Search icon"
           aria-label="Search"
-          onClick={handleSearch} // Trigger search
+          onClick={handleSearch}
         />
+        {/* Toggle Button for Celsius */}
+        <button
+          className="toggle-button"
+          onClick={() => setIsCelsius(!isCelsius)}
+        >
+          Switch to {isCelsius ? "°F" : "°C"}
+        </button>
       </div>
 
       <div className="container">
@@ -149,7 +156,10 @@ function WeatherDisplay() {
                   <p>{weatherData.location}</p>
                 </div>
                 <div className="temp">
-                  <h1>{weatherData.temperature}°F</h1>
+                  <h1>
+                    {convertTemperature(weatherData.temperature)}
+                    {isCelsius ? "°C" : "°F"}
+                  </h1>
                 </div>
                 <div className="desc">
                   <p className="bold">{weatherData.desc}</p>
@@ -161,14 +171,17 @@ function WeatherDisplay() {
                 </div>
               </div>
               <div className="top-right">
-                <WeatherDetails weatherData={weatherData} />
+                <WeatherDetails
+                  weatherData={weatherData}
+                  isCelsius={isCelsius}
+                />
               </div>
             </div>
 
             <div className="time">
               <h1>
                 {weatherData.timezone
-                  ? getLocalTime(weatherData.timezone) // Show local time
+                  ? getLocalTime(weatherData.timezone)
                   : "Loading time..."}
               </h1>
             </div>
